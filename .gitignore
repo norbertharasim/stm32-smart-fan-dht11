@@ -1,0 +1,19 @@
+# CMake & Build outputs
+build/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+*.elf
+*.bin
+*.hex
+*.map
+*.o
+*.d
+
+# IDE (CLion / JetBrains)
+.idea/
+cmake/
+
+# Backupy CubeMX
+*.bak
+*~
