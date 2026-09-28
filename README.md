@@ -66,7 +66,4 @@ Dla stanu pracy „Lekki nawiew” (wypełnienie 40% przy zadanej częstotliwoś
 ### 2. Telemetria UART (PuTTY)
 System w pętli co 2 sekundy raportuje aktualny stan regulacji wraz z 10-stopniowym paskiem ASCII i opisem intensywności:
 
-### 2. Telemetria UART (PuTTY)
-System w pętli co 2 sekundy raportuje aktualny stan regulacji wraz z 10-stopniowym paskiem ASCII i opisem intensywności nawiewu:
-
 ![PuTTY Telemetry Output](docs/putty_output.png)
