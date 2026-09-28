@@ -22,6 +22,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "dht11.h"
+#include "fan_controller.h"
 #include <stdio.h>
 #include <string.h>
 /* USER CODE END Includes */
@@ -42,24 +43,37 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim2;
+
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 DHT11_Data_t dhtData;
-char uart_buf[64];
+char uart_buf[160];
+extern TIM_HandleTypeDef htim2;
+extern UART_HandleTypeDef huart2;
+
+FanController_t fan;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_USART2_UART_Init(void);
+static void MX_TIM2_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+const char* Fan_GetIntensityText(uint8_t duty) {
+  if (duty <= 20) return "Cicho / Bieg jalowy";
+  if (duty < 45)  return "Lekki nawiew";
+  if (duty < 70)  return "Sredni nawiew";
+  if (duty < 90)  return "Mocny nawiew";
+  return "Maksymalna wydajnosc";
+}
 /* USER CODE END 0 */
 
 /**
@@ -92,21 +106,53 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
 DHT11_Init();
+Fan_Init(&fan, &htim2, TIM_CHANNEL_1, 3359);
+Fan_SetPID(&fan, 10.0f, 0.15f, 2.0f, 22.0f);
+Fan_SetOutputLimits(&fan, 20.0f, 100.0f);
+
 
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  float temp = 0.0f;
+  float humidity = 0.0f;
+  uint32_t last_time = 0;
+  const uint32_t sample_period_ms = 2000;
+  const float dt_sec = 2.0f;
+
   while (1)
   {
     uint8_t status = DHT11_Read(&dhtData);
 
     if (status == 0) {
+      Fan_PID_Update(&fan, (float)dhtData.temperature, 2.0f);
+      uint8_t duty = Fan_GetDuty(&fan);
+      const char* intensity_text = Fan_GetIntensityText(duty);
+
+      char bar[11];
+      int bars_count = (duty + 5) / 10;
+      if (bars_count > 10) bars_count = 10;
+
+      for (int i = 0; i < 10; i++) {
+        bar[i] = (i < bars_count) ? '=' : '.';
+      }
+      bar[10] = '\0';
+      int sp_int = (int)fan.setpoint;
+      int sp_dec = (int)((fan.setpoint - (float)sp_int) * 10.0f);
+      if (sp_dec < 0) sp_dec = -sp_dec;
+
       int len = snprintf(uart_buf, sizeof(uart_buf),
-                        "Temp: %d C | Wilgotnosc: %d %%\r\n",
-                        dhtData.temperature, dhtData.humidity);
+      "Temp: %2d C (Zadana: %d.%d C) | Wilg: %2d %% | PWM: %3u %% [%s] -> %s\r\n",
+            dhtData.temperature,
+            sp_int, sp_dec,
+            dhtData.humidity,
+            duty,
+            bar,
+            intensity_text);
       HAL_UART_Transmit(&huart2, (uint8_t*)uart_buf, len, 50);
     }
     else if (status == 1) {
@@ -167,6 +213,65 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+}
+
+/**
+  * @brief TIM2 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM2_Init(void)
+{
+
+  /* USER CODE BEGIN TIM2_Init 0 */
+
+  /* USER CODE END TIM2_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+  TIM_OC_InitTypeDef sConfigOC = {0};
+
+  /* USER CODE BEGIN TIM2_Init 1 */
+
+  /* USER CODE END TIM2_Init 1 */
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 0;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 3359;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM2_Init 2 */
+
+  /* USER CODE END TIM2_Init 2 */
+  HAL_TIM_MspPostInit(&htim2);
+
 }
 
 /**

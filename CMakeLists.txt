@@ -34,7 +34,9 @@ enable_language(C ASM)
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME}
         Core/Inc/dht11.h
-        Core/Src/dht11.c)
+        Core/Src/dht11.c
+        Core/Inc/fan_controller.h
+        Core/Src/fan_controller.c)
 
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
