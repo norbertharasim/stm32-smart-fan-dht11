@@ -66,8 +66,7 @@ Dla stanu pracy „Lekki nawiew” (wypełnienie 40% przy zadanej częstotliwoś
 ### 2. Telemetria UART (PuTTY)
 System w pętli co 2 sekundy raportuje aktualny stan regulacji wraz z 10-stopniowym paskiem ASCII i opisem intensywności:
 
-```text
-Temp: 23 C (Zadana: 28.0 C) | Wilg: 47 % | PWM:  20 % [==........] -> Cicho / Bieg jalowy
-Temp: 29 C (Zadana: 28.0 C) | Wilg: 48 % | PWM:  40 % [====......] -> Lekki nawiew
-Temp: 33 C (Zadana: 28.0 C) | Wilg: 52 % | PWM:  78 % [========..] -> Mocny nawiew
-Temp: 37 C (Zadana: 28.0 C) | Wilg: 55 % | PWM: 100 % [==========] -> Maksymalna wydajnosc
+### 2. Telemetria UART (PuTTY)
+System w pętli co 2 sekundy raportuje aktualny stan regulacji wraz z 10-stopniowym paskiem ASCII i opisem intensywności nawiewu:
+
+![PuTTY Telemetry Output](docs/putty_output.png)
