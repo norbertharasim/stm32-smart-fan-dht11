@@ -6,7 +6,7 @@ Układ odczytuje temperaturę otoczenia za pomocą czujnika **DHT11**, przetwarz
 
 ---
 
-## 🛠 Hardware & Narzędzia
+## Hardware & Narzędzia
 
 - **MCU:** STM32F407VGT6 (rdzeń ARM Cortex-M4 @ 168 MHz)
 - **Czujnik:** DHT11 (temperatura i wilgotność)
@@ -16,7 +16,7 @@ Układ odczytuje temperaturę otoczenia za pomocą czujnika **DHT11**, przetwarz
 
 ---
 
-## 🔌 Połączenie sprzętowe (Wiring)
+##  Połączenie sprzętowe (Wiring)
 
 ### 1. Czujnik DHT11
 | Wyprowadzenie DHT11 | STM32 / Zasilanie | Funkcja | Uwagi |
@@ -35,7 +35,7 @@ Układ odczytuje temperaturę otoczenia za pomocą czujnika **DHT11**, przetwarz
 
 ---
 
-## ⚙️ Architektura oprogramowania i algorytm
+## Architektura oprogramowania i algorytm
 
 ### 1. Generacja sprzętowego PWM 25 kHz
 Zgodnie ze specyfikacją *Intel 4-Wire PWM Fan*:
@@ -53,7 +53,7 @@ Zgodnie ze specyfikacją *Intel 4-Wire PWM Fan*:
 
 ---
 
-## 📊 Weryfikacja pomiarowa (Testing & Diagnostics)
+##  Weryfikacja pomiarowa (Testing & Diagnostics)
 
 ### 1. Przebieg PWM na analizatorze logicznym (PulseView)
 Generowany sygnał zweryfikowano analizatorem logicznym przy próbkowaniu 12–24 MSa/s.
