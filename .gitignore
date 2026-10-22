@@ -12,7 +12,6 @@ CMakeCache.txt
 
 # IDE (CLion / JetBrains)
 .idea/
-cmake/
 
 # Backupy CubeMX
 *.bak
