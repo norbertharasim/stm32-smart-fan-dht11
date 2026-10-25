@@ -118,11 +118,6 @@ Fan_SetOutputLimits(&fan, 20.0f, 100.0f);
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  float temp = 0.0f;
-  float humidity = 0.0f;
-  uint32_t last_time = 0;
-  const uint32_t sample_period_ms = 2000;
-  const float dt_sec = 2.0f;
 
   while (1)
   {
