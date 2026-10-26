@@ -46,7 +46,7 @@ void Fan_SetOutputLimits(FanController_t *fan, float out_min, float out_max) {
     fan->out_min = out_min;
     fan->out_max = out_max;
 }
-void FanSetTargetTemp(FanController_t *fan, float setpoint) {
+void Fan_SetTargetTemp(FanController_t *fan, float setpoint) {
     if (!fan) return;
     fan->setpoint = setpoint;
 }

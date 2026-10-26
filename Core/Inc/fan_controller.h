@@ -4,11 +4,13 @@
 
 #ifndef STM32_DHT11_FAN_CONTROLLER_H
 #define STM32_DHT11_FAN_CONTROLLER_H
-#ifdef __cplusplus
-extern "C" {
-#endif //STM32_DHT11_FAN_CONTROLLER_H
+
 #include "stm32f4xx_hal.h"
 #include<stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef struct {
     TIM_HandleTypeDef *htim;
@@ -43,4 +45,4 @@ uint8_t Fan_GetDuty(const FanController_t *fan);
 #ifdef __cplusplus
 }
 #endif
-#endif
+#endif // STM32_DHT11_FAN_CONTROLLER_H
