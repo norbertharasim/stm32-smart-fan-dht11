@@ -2,7 +2,7 @@
 
 Inteligentny sterownik wentylatora chłodzącego z zamkniętą pętlą sprzężenia zwrotnego (closed-loop), zrealizowany na mikrokontrolerze **STM32F407** (ARM Cortex-M4).
 
-Układ odczytuje temperaturę otoczenia za pomocą czujnika **DHT11**, przetwarza uchyb regulacji w dyskretnym algorytmie **PID z zabezpieczeniem anti-windup**, a następnie precyzyjnie moduluje prędkość obrotową 4-przewodowego wentylatora bezszczotkowego (BLDC) za pomocą sprzętowego sygnału **PWM 25 kHz** zgodnego ze specyfikacją Intel 4-Wire. Całość przesyła telemetrię diagnostyczną w czasie rzeczywistym przez interfejs **UART**.
+Układ odczytuje temperaturę otoczenia za pomocą czujnika **DHT11**, przetwarza uchyb regulacji w dyskretnym algorytmie **PID z zabezpieczeniem anti-windup**, a następnie moduluje prędkość obrotową 4-przewodowego wentylatora bezszczotkowego (BLDC) za pomocą sprzętowego sygnału **PWM 25 kHz** zgodnego ze specyfikacją Intel 4-Wire. Całość przesyła telemetrię diagnostyczną w czasie rzeczywistym przez interfejs **UART**.
 
 ---
 
@@ -16,7 +16,7 @@ Układ odczytuje temperaturę otoczenia za pomocą czujnika **DHT11**, przetwarz
 
 ---
 
-##  Połączenie sprzętowe (Wiring)
+## Połączenie sprzętowe (Wiring)
 
 ### 1. Czujnik DHT11
 | Wyprowadzenie DHT11 | STM32 / Zasilanie | Funkcja | Uwagi |
@@ -39,7 +39,7 @@ Układ odczytuje temperaturę otoczenia za pomocą czujnika **DHT11**, przetwarz
 
 ### 1. Generacja sprzętowego PWM 25 kHz
 Zgodnie ze specyfikacją *Intel 4-Wire PWM Fan*:
-- Sygnał sterujący musi pracować z częstotliwością **$25\text{ kHz}$** ($T = 40\ \mu\text{s}$), aby zapobiec zjawisku magnetostrykcji i piskom cewek w paśmie słyszalnym.
+- Sygnał sterujący musi pracować z częstotliwością **$25\text{ kHz}$** ($T = 40\ \mu\text{s}$), powyżej pasma słyszalnego, zgodnie ze specyfiakcją Intel 4-Wire.
 - Wykorzystano timer **TIM2** na szynie **APB1** ($f_{\text{timer}} = 84\text{ MHz}$).
 - Zastosowano konfigurację:
   $$\text{PSC} = 0, \quad \text{ARR} = 3359 \implies f_{\text{PWM}} = \frac{84\,000\,000}{(0 + 1) \cdot (3359 + 1)} = 25\,000\text{ Hz}$$
@@ -49,11 +49,11 @@ Zgodnie ze specyfikacją *Intel 4-Wire PWM Fan*:
 - **Uchyb:** $e = T_{\text{aktualna}} - T_{\text{zadana}}$ (uchyb dodatni wymusza mocniejsze chłodzenie).
 - **Anti-Windup:** Ograniczenie wartości całki (clamping) zapobiega nasyceniu członu całkującego przy dużej bezwładności termicznej obiektu.
 - **Derivative on Measurement:** Człon różniczkujący liczony po zmianie mierzonej temperatury ($dT/dt$), co eliminuje tzw. *derivative kick* przy zmianie temperatury zadanej.
-- **Dolny próg (Idle):** Ograniczenie sygnału wyjściowego w zakresie $[20\%, 100\%]$ zapewnia stabilną pracę hydrodynamiczną wentylatora bez zjawiska gaśnięcia komutacji.
+- **Dolny próg (Idle):** Ograniczenie sygnału wyjściowego w zakresie $[20\%, 100\%]$ zapewnia stabilną pracę wentylatora bez zjawiska gaśnięcia komutacji.
 
 ---
 
-##  Weryfikacja pomiarowa (Testing & Diagnostics)
+## Weryfikacja pomiarowa (Testing & Diagnostics)
 
 ### 1. Przebieg PWM na analizatorze logicznym (PulseView)
 Generowany sygnał zweryfikowano analizatorem logicznym przy próbkowaniu 12–24 MSa/s.
@@ -67,3 +67,11 @@ Dla stanu pracy „Lekki nawiew” (wypełnienie 40% przy zadanej częstotliwoś
 System w pętli co 2 sekundy raportuje aktualny stan regulacji wraz z 10-stopniowym paskiem ASCII i opisem intensywności:
 
 ![PuTTY Telemetry Output](docs/putty_output.png)
+
+##  Limitations
+
+Projekt działa, ale ma kilka ograniczeń:
+
+- **Rozdzielczość czujnika** DHT11 podaje temperaturę z dokładnością do 1 °C i odświeża dane mniej więcej raz na sekundę.
+- **Stały krok czasowy.** Regulator dostaje 'dt = 2 s'. Faktyczny okres pętli jest minimalnie dłuższy. Przez to człony I i D są liczone w przybliżeniu
+- **Timeouty liczone w obrotach pętli** Odczyt DHT11 używa limitu 100000 iteracji, więc rzeczywisty czas oczekiwania może być różny w zależnośći od taktowania i optymalizacji kompilatora.
