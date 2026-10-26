@@ -50,8 +50,6 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 DHT11_Data_t dhtData;
 char uart_buf[160];
-extern TIM_HandleTypeDef htim2;
-extern UART_HandleTypeDef huart2;
 
 FanController_t fan;
 /* USER CODE END PV */
